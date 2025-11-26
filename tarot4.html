@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ランダム画像表示（3枚引き）</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 900px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        #kickButton {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+        
+        #kickButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+        }
+        
+        #kickButton:active {
+            transform: scale(0.95);
+        }
+        
+        #result {
+            margin-top: 30px;
+            min-height: 100px;
+        }
+        
+        .cards-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .card {
+            animation: fadeIn 0.5s;
+        }
+        
+        .card-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: none;
+        }
+        
+        .card img {
+            max-width: 250px;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .image-info {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> ランダム画像ガチャ（3枚引き）</h1>
+        <button id="kickButton">キック！</button>
+        <div id="result">
+            <div class="cards-container" id="cardsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // 画像データベース（テーブル）
+        // GitHubのraw.githubusercontent.comのURLを使用
+        // 例: https://raw.githubusercontent.com/ユーザー名/リポジトリ名/main/画像ファイル名
+        const imageDatabase = {
+            1: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像1' },
+            2: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像2' },
+            3: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像3' },
+            4: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像4' },
+            5: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像5' },
+            6: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像6' },
+            7: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像7' },
+            8: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像8' },
+            9: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像9' },
+            10: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/sec.gif', name: '画像10' },
+            11: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/sec.gif', name: '画像11' },
+            12: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/sec.gif', name: '画像12' },
+            13: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/sec.gif', name: '画像13' },
+            14: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像14' },
+            15: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像15' },
+            16: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像16' },
+            17: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像17' },
+            18: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像18' },
+            19: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像19' },
+            20: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像20' },
+            21: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像21' },
+            22: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像22' },
+            23: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像23' },
+            24: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像24' },
+            25: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像25' },
+            26: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像26' },
+            27: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像27' },
+            28: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像28' },
+            29: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像29' },
+            30: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像30' },
+            31: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像31' },
+            32: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像32' },
+            33: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像33' },
+            34: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像34' },
+            35: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像35' },
+            36: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像36' },
+            37: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像37' },
+            38: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像38' },
+            39: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像39' },
+            40: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像40' },
+            41: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像41' },
+            42: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像42' },
+            43: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像43' },
+            44: { url: 'https://raw.githubusercontent.com/masaki009/test123/main/digitalcard.png', name: '画像44' }
+        };
+
+        const kickButton = document.getElementById('kickButton');
+        const cardsContainer = document.getElementById('cardsContainer');
+
+        kickButton.addEventListener('click', function() {
+            // 3枚分の異なるランダムな数字を生成
+            const randomNumbers = [];
+            const usedNumbers = new Set();
+            
+            while (randomNumbers.length < 3) {
+                const randomNumber = Math.floor(Math.random() * 44) + 1;
+                if (!usedNumbers.has(randomNumber)) {
+                    randomNumbers.push(randomNumber);
+                    usedNumbers.add(randomNumber);
+                }
+            }
+            
+            // カードコンテナをクリア
+            cardsContainer.innerHTML = '';
+            
+            // 3枚のカードを表示
+            randomNumbers.forEach((number, index) => {
+                const imageData = imageDatabase[number];
+                
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card';
+                cardDiv.style.animationDelay = `${index * 0.1}s`;
+                
+                cardDiv.innerHTML = `
+                    <img src="${imageData.url}" alt="${imageData.name}">
+                    <div class="image-info">${imageData.name}</div>
+                `;
+                
+                cardsContainer.appendChild(cardDiv);
+            });
+        });
+    </script>
+</body>
+</html>
