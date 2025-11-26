@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>診断チャット</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .button:active {
+            transform: translateY(0);
+        }
+        .result {
+            display: none;
+            padding: 20px;
+            background: #f0f9ff;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .progress {
+            text-align: center;
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="progress">質問 <span id="current">1</span> / 2</div>
+        
+        <div id="question1" class="question-block">
+            <h2>質問1</h2>
+            <p class="question">あなたの好きな作業時間帯は?</p>
+            <button class="button" onclick="answer(1, '朝型')">?? 朝型(6:00-12:00)</button>
+            <button class="button" onclick="answer(1, '昼型')">?? 昼型(12:00-18:00)</button>
+            <button class="button" onclick="answer(1, '夜型')">?? 夜型(18:00-24:00)</button>
+            <button class="button" onclick="answer(1, '深夜型')">?? 深夜型(24:00-6:00)</button>
+        </div>
+
+        <div id="question2" class="question-block" style="display:none;">
+            <h2>質問2</h2>
+            <p class="question">あなたの学習スタイルは?</p>
+            <button class="button" onclick="answer(2, '実践型')">?? 実践しながら学ぶのが好き</button>
+            <button class="button" onclick="answer(2, '理論型')">?? まず理論を理解してから取り組む</button>
+            <button class="button" onclick="answer(2, '議論型')">?? 他の人と議論しながら学ぶ</button>
+            <button class="button" onclick="answer(2, '独学型')">?? 独学で自分のペースで進める</button>
+        </div>
+
+        <div id="result" class="result">
+            <h2>診断結果</h2>
+            <p id="resultText"></p>
+        </div>
+    </div>
+
+    <script>
+        let answers = {};
+
+        function answer(questionNum, value) {
+            answers[`q${questionNum}`] = value;
+            
+            if (questionNum === 1) {
+                document.getElementById('question1').style.display = 'none';
+                document.getElementById('question2').style.display = 'block';
+                document.getElementById('current').textContent = '2';
+            } else if (questionNum === 2) {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question2').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            
+            let resultText = `あなたは「${answers.q1} × ${answers.q2}」タイプです！\n\n`;
+            
+            // 結果のパターン
+            if (answers.q1 === '朝型' && answers.q2 === '実践型') {
+                resultText += '朝から活発に行動する実行力のある人です。新しいことにどんどん挑戦してみましょう！';
+            } else if (answers.q1 === '夜型' && answers.q2 === '理論型') {
+                resultText += '静かな夜に深く考えることが得意な思索家です。じっくり学んで知識を深めましょう！';
+            } else {
+                resultText += 'あなた独自のスタイルで学習を進めていくのが良さそうです！';
+            }
+            
+            document.getElementById('resultText').textContent = resultText;
+        }
+    </script>
+</body>
+</html>
+
